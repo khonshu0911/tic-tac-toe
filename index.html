@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Comic Sans MS', sans-serif;
+      text-align: center;
+      background-image: url('https://res.cloudinary.com/damhnrsar/image/upload/v1746110462/20250501_200854_aokqh5.jpg');
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #800040;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      transition: background-image 0.5s;
+    }
+
+    body.no-image {
+      background: linear-gradient(135deg, #ff99cc, #fff0f5);
+    }
+
+    #startScreen, #gameScreen {
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #startScreen { display: flex; }
+
+    #startScreen h1 {
+      font-size: 3.5em;
+      font-weight: bold;
+      font-family: 'Arial Black', sans-serif;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      margin-top: -200px;
+    }
+
+    #buttonWrapper {
+      margin-top: 55px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    select#themeSelect {
+      display: none;
+    }
+
+    #gameTitle {
+      font-family: 'Comic Sans MS', sans-serif;
+      font-size: 2.3em;
+      height: 1.2em;
+      margin-bottom: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      margin-top: 20px;
+    }
+    .cell {
+      background: rgba(255,240,245,0.8);
+      border: 3px solid #ff99cc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .cell:hover:not([aria-disabled="true"]) { transform: scale(1.05); }
+    .cell[aria-disabled="true"] { cursor: not-allowed; }
+    .cell img { width: 80px; height: 80px; }
+    .cell img.fallback { width: 60px; height: 60px; }
+
+    #scores {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+    #status {
+      margin-top: -10px;
+      font-size: 26px;
+      font-family: 'Arial', sans-serif;
+      font-weight: 700;
+      color: yellow;
+      -webkit-text-stroke: 1px black;
+      text-shadow: 1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black;
+    }
+    #controls {
+      margin-top: 25px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background-color: #ff66a3;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      margin: 5px;
+    }
+
+    #popup {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      background: #fff0f5;
+      padding: 30px 50px;
+      border: 4px solid #ff66b2;
+      border-radius: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 0 25px rgba(255,0,100,0.4);
+      color: #c2185b;
+      animation: fadeInOut 2s ease-in-out;
+    }
+    @keyframes fadeInOut {
+      0%   { opacity: 0; transform: scale(0.7) translate(-50%,-50%); }
+      20%  { opacity: 1; transform: scale(1.05) translate(-50%,-50%); }
+      80%  { opacity: 1; transform: scale(1) translate(-50%,-50%); }
+      100% { opacity: 0; transform: scale(0.7) translate(-50%,-50%); }
+    }
+
+    @media (max-width: 600px) {
+      #startScreen h1 {
+        font-size: 2.5em;
+        margin-top: -120px;
+      }
+      #buttonWrapper {
+        margin-top: 35px;
+      }
+      #scores {
+        font-size: 16px;
+      }
+      #status {
+        margin-top: -10px;
+        font-size: 24px;
+        font-family: 'Arial', sans-serif;
+      }
+      #board {
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(3, 80px);
+      }
+      .cell img {
+        width: 60px;
+        height: 60px;
+      }
+      .cell img.fallback {
+        width: 50px;
+        height: 50px;
+      }
+      #gameTitle {
+        font-size: 1.8em;
+      }
+      #popup {
+        font-size: 20px;
+        padding: 20px 30px;
+      }
+      button {
+        padding: 8px 16px;
+        font-size: 14px;
+      }
+      #controls {
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Start Screen -->
+  <div id="startScreen">
+    <h1>TIC TAC TOE</h1>
+    <div id="buttonWrapper">
+      <button onclick="startGame('singlePlayer')">Single Player Game</button>
+      <button onclick="startGame('twoPlayer')">Multiplayer Game</button>
+    </div>
+    <select id="themeSelect" onchange="setTheme(this.value)">
+      <option value="default">Default Theme</option>
+      <option value="alternate">Alternate Theme</option>
+    </select>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen">
+    <h1 id="gameTitle"></h1>
+    <div id="scores">
+      🐥 Succi Duck: <span id="duckScore">0</span> |
+      🦀 Succi Crab: <span id="crabScore">0</span>
+    </div>
+    <div id="board"></div>
+    <p id="status"></p>
+    <div id="controls">
+      <button onclick="resetGame()">🔁 Reset Game</button>
+      <button onclick="goBack()">🔙 Back</button>
+    </div>
+    <div id="popup"></div>
+  </div>
+
+  <script>
+    const gameTitleText = "Prove Your Luv";
+    const playerSymbols = {
+      player1: `<img src="https://i.imgur.com/YNPM7vg.png" width="80" height="80" alt="Succi Duck" 
+                onerror="this.src='https://via.placeholder.com/80?text=Duck';this.className='fallback';">`,
+      player2: `<img src="https://i.imgur.com/eY7lFJh.png" width="80" height="80" style="transform:translateX(-6px) translateY(-1px);" alt="Succi Crab" 
+                onerror="this.src='https://via.placeholder.com/80?text=Crab';this.className='fallback';">`
+    };
+
+    const themes = {
+      default: {
+        background: 'url(https://res.cloudinary.com/damhnrsar/image/upload/v1746110462/20250501_200854_aokqh5.jpg)',
+        cellBackground: 'rgba(255,240,245,0.8)',
+        cellBorder: '#ff99cc'
+      },
+      alternate: {
+        background: 'url(https://via.placeholder.com/1920x1080?text=Alternate+Background)',
+        cellBackground: 'rgba(200,255,200,0.8)',
+        cellBorder: '#66cc66'
+      }
+    };
+
+    let currentPlayer = "player1",
+        board = Array(9).fill(null),
+        scores = { player1: 0, player2: 0 },
+        isTransitioning = false,
+        gameMode = "twoPlayer";
+
+    const moveSound = new Audio('https://freesound.org/data/previews/100/100387_1648171-lq.mp3');
+    const winSound = new Audio('https://freesound.org/data/previews/100/100389_1648171-lq.mp3');
+
+    function checkWinner() {
+      const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      for (let [a,b,c] of wins) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c])
+          return board[a];
+      }
+      return board.includes(null) ? null : "draw";
+    }
+
+    function showPopup(msg) {
+      const p = document.getElementById("popup");
+      p.textContent = msg;
+      p.style.display = "block";
+      setTimeout(() => { p.style.display = "none"; isTransitioning = false; }, 2000);
+    }
+
+    function updateStatus(winner) {
+      const s = document.getElementById("status");
+      if (winner === "draw") {
+        s.textContent = "It's a draw!";
+        showPopup("Draw!");
+        setTimeout(resetGame, 2000);
+      } else if (winner) {
+        scores[winner]++;
+        saveScores();
+        updateScoreboard();
+        const name = winner === "player1" ? "Succi Duck" : "Succi Crab";
+        s.textContent = `${name} wins!`;
+        winSound.play();
+        showPopup(`${name} Wins!`);
+        setTimeout(resetGame, 2000);
+      } else {
+        s.textContent = `${currentPlayer === "player1" ? "Succi Duck's" : "Succi Crab's"} turn`;
+      }
+    }
+
+    function updateScoreboard() {
+      document.getElementById("duckScore").textContent = scores.player1;
+      document.getElementById("crabScore").textContent = scores.player2;
+    }
+
+    function handleClick(i) {
+      if (board[i] || checkWinner() || isTransitioning) return;
+      isTransitioning = true;
+      board[i] = currentPlayer;
+      moveSound.play();
+      renderBoard();
+      const w = checkWinner();
+      if (!w) {
+        currentPlayer = currentPlayer === "player1" ? "player2" : "player1";
+        updateStatus(w);
+        isTransitioning = false;
+        if (gameMode === "singlePlayer" && currentPlayer === "player2") {
+          setTimeout(makeAIMove, 500);
+        }
+      } else {
+        updateStatus(w);
+        isTransitioning = false;
+      }
+    }
+
+    function makeAIMove() {
+      if (isTransitioning || checkWinner()) return;
+      const emptyCells = board.map((val, i) => val === null ? i : null).filter(val => val !== null);
+      if (emptyCells.length === 0) return;
+
+      // Check for winning move (player2)
+      for (let i of emptyCells) {
+        board[i] = 'player2';
+        if (checkWinner() === 'player2') {
+          board[i] = null;
+          handleClick(i);
+          return;
+        }
+        board[i] = null;
+      }
+
+      // Check for blocking move (block player1)
+      for (let i of emptyCells) {
+        board[i] = 'player1';
+        if (checkWinner() === 'player1') {
+          board[i] = null;
+          handleClick(i);
+          return;
+        }
+        board[i] = null;
+      }
+
+      // Random move
+      const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      handleClick(randomIndex);
+    }
+
+    function renderBoard() {
+      const b = document.getElementById("board");
+      b.innerHTML = "";
+      board.forEach((c, i) => {
+        const d = document.createElement("div");
+        d.className = "cell";
+        d.innerHTML = c ? playerSymbols[c] : "";
+        d.setAttribute("role", "button");
+        d.setAttribute("aria-label", c ? `Cell ${i + 1}: ${c === "player1" ? "Succi Duck" : "Succi Crab"}` : `Cell ${i + 1}: Empty`);
+        d.setAttribute("tabindex", "0");
+        d.setAttribute("aria-disabled", c || isTransitioning ? "true" : "false");
+        d.onclick = () => handleClick(i);
+        d.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") handleClick(i); };
+        b.appendChild(d);
+      });
+    }
+
+    function resetGame() {
+      isTransitioning = true;
+      board = Array(9).fill(null);
+      currentPlayer = "player1";
+      renderBoard();
+      updateStatus(null);
+      setTimeout(() => { isTransitioning = false; }, 2000);
+    }
+
+    function typeWriter(text, id, speed = 100) {
+      const el = document.getElementById(id);
+      el.textContent = "";
+      let i = 0;
+      const iv = setInterval(() => {
+        el.textContent += text.charAt(i);
+        i++;
+        if (i >= text.length) clearInterval(iv);
+      }, speed);
+    }
+
+    function startGame(mode) {
+      gameMode = mode;
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("gameScreen").style.display = "flex";
+      typeWriter(gameTitleText, "gameTitle", 100);
+      resetGame();
+    }
+
+    function goBack() {
+      document.getElementById("gameScreen").style.display = "none";
+      document.getElementById("startScreen").style.display = "flex";
+      scores = { player1: 0, player2: 0 };
+      saveScores();
+      updateScoreboard();
+    }
+
+    function loadScores() {
+      const saved = localStorage.getItem("ticTacToeScores");
+      if (saved) scores = JSON.parse(saved);
+      updateScoreboard();
+    }
+
+    function saveScores() {
+      localStorage.setItem("ticTacToeScores", JSON.stringify(scores));
+    }
+
+    function setTheme(themeName) {
+      const theme = themes[themeName];
+      document.body.style.backgroundImage = theme.background;
+      document.body.classList.toggle("no-image", !theme.background.includes("url"));
+      document.querySelectorAll(".cell").forEach(cell => {
+        cell.style.background = theme.cellBackground;
+        cell.style.borderColor = theme.cellBorder;
+      });
+    }
+
+    const bgImage = new Image();
+    bgImage.src = 'https://res.cloudinary.com/damhnrsar/image/upload/v1746110462/20250501_200854_aokqh5.jpg';
+    bgImage.onerror = () => {
+      console.error('Background image failed to load. Using fallback gradient.');
+      document.body.classList.add("no-image");
+    };
+    bgImage.onload = () => {
+      console.log('Background image loaded successfully.');
+    };
+
+    setTheme('default');
+    loadScores();
+    renderBoard();
+    updateStatus(null);
+  </script>
+</body>
+</html>
