@@ -416,3 +416,19 @@
     }
 
     const bgImage = new Image();
+    bgImage.src = 'https://res.cloudinary.com/damhnrsar/image/upload/v1746110462/20250501_200854_aokqh5.jpg';
+    bgImage.onerror = () => {
+      console.error('Background image failed to load. Using fallback gradient.');
+      document.body.classList.add("no-image");
+    };
+    bgImage.onload = () => {
+      console.log('Background image loaded successfully.');
+    };
+
+    setTheme('default');
+    loadScores();
+    renderBoard();
+    updateStatus(null);
+  </script>
+</body>
+</html>
