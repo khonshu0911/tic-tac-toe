@@ -101,7 +101,8 @@
       font-family: 'Arial', sans-serif;
       font-weight: 700;
       color: yellow;
-      /* Removed black strokes */
+      -webkit-text-stroke: 1px black; /* Restored */
+      text-shadow: 1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black; /* Restored */
     }
     #controls {
       margin-top: 25px;
@@ -145,7 +146,7 @@
     @media (max-width: 600px) {
       #startScreen h1 {
         font-size: 2.5em;
-        margin-top: -120px;
+        margin-top: -100px; /* Shifted downwards from -120px */
       }
       #buttonWrapper {
         margin-top: 35px;
@@ -218,7 +219,7 @@
   </div>
 
   <script>
-    const gameTitleText = "Prove Your Luv";
+    const gameTitleText = " Prove Your Luv";
     const playerSymbols = {
       player1: `<img src="https://i.imgur.com/YNPM7vg.png" width="80" height="80" alt="Succi Duck" 
                 onerror="this.src='https://via.placeholder.com/80?text=Duck';this.className='fallback';">`,
@@ -415,19 +416,3 @@
     }
 
     const bgImage = new Image();
-    bgImage.src = 'https://res.cloudinary.com/damhnrsar/image/upload/v1746110462/20250501_200854_aokqh5.jpg';
-    bgImage.onerror = () => {
-      console.error('Background image failed to load. Using fallback gradient.');
-      document.body.classList.add("no-image");
-    };
-    bgImage.onload = () => {
-      console.log('Background image loaded successfully.');
-    };
-
-    setTheme('default');
-    loadScores();
-    renderBoard();
-    updateStatus(null);
-  </script>
-</body>
-</html>
